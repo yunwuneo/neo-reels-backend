@@ -91,6 +91,7 @@
 **注意**
 - `content_type` 必须在允许列表内（`video/mp4`, `video/quicktime`, `video/x-m4v`, `video/webm`）
 - `size_bytes` 有上限（默认 500MB）
+- `upload_url` 使用 `MINIO_PUBLIC_ENDPOINT` 生成，确保客户端可访问（本地默认为 `http://localhost:9000`）
 
 #### 上传文件到 MinIO（客户端直传）
 **PUT** `upload_url`  
@@ -143,6 +144,19 @@
 
 ## 本地调试 / 测试
 
+### 端到端验证（推荐）
+使用脚本自动跑通：注册 → 登录 → init → presigned PUT 上传 → complete → 轮询状态 → 详情 → feed。
+
+```
+API_BASE=http://localhost:8000 VIDEO_FILE=samples/sample.mp4 bash scripts/demo_upload.sh
+```
+
+说明：
+- `API_BASE` 默认 `http://localhost:8000`
+- `VIDEO_FILE` 默认 `samples/sample.mp4`
+- 若 `VIDEO_FILE` 不存在，脚本会尝试用 `ffmpeg` 自动生成 3 秒测试视频
+- 若首次注册失败返回 `email_taken`，脚本会自动继续登录
+
 ### 方式 A：脚本一键跑通
 准备一个 mp4，然后执行：
 ```
@@ -166,4 +180,5 @@ VIDEO_PATH=/path/to/your.mp4 bash scripts/curl_examples.sh
 ### 常见排查点
 - 转码失败：`docker compose logs -f worker`
 - 上传直传失败：确认 `Content-Type` 与 `size_bytes` 合规
-- MinIO 连接问题：检查 `MINIO_ENDPOINT` 与桶是否创建
+- MinIO 连接问题：检查 `MINIO_ENDPOINT`、`MINIO_PUBLIC_ENDPOINT` 与桶是否创建
+- 上传报 `NoSuchBucket`：执行 `docker compose up -d --force-recreate minio-init`

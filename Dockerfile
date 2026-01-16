@@ -1,7 +1,8 @@
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends ffmpeg curl \
@@ -11,8 +12,7 @@ WORKDIR /app
 
 COPY . /app
 
-RUN pip install --upgrade pip \
-  && pip install .
+RUN pip install --no-cache-dir .
 
 EXPOSE 8000
 

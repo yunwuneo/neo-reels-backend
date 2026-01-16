@@ -54,6 +54,7 @@ async def init_upload(
     object_key = f"raw/{video.id}/{video.id}{suffix}"
     video.raw_object_key = object_key
     await session.commit()
+    await session.refresh(video)
 
     upload_url = generate_presigned_put_url(object_key, payload.content_type)
     return VideoUploadInitResponse(upload_url=upload_url, object_key=object_key, video_id=video.id)
@@ -81,6 +82,7 @@ async def complete_upload(
     video.status = "processing"
     video.error_message = None
     await session.commit()
+    await session.refresh(video)
 
     celery_app.send_task("transcode_video", args=[str(video.id)])
     return VideoOut.model_validate(video)

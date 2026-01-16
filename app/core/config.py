@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     redis_url: str
 
     minio_endpoint: str
+    minio_public_endpoint: str | None = None
     minio_access_key: str
     minio_secret_key: str
     minio_bucket: str = "videos"
